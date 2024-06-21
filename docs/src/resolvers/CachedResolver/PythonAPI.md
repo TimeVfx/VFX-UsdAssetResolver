@@ -1,32 +1,52 @@
-## Overview
+## Overview [概述]
 You can import the Python module as follows:
+
+[ 您可以按如下方式导入 Python 模块]
 ```python
 from pxr import Ar
 from usdAssetResolver import CachedResolver
 ```
 
-## Tokens
+## Tokens [令牌]
 Tokens can be found in CachedResolver.Tokens:
+
+[ 令牌可以在 CachedResolver.Tokens 中找到]
 ```python
 CachedResolver.Tokens.mappingPairs
 ```
 
-## Resolver
-We optionally can also hook into relative path identifier creation via Python. 
+## Resolver [解析器]
+We optionally can also hook into relative path identifier creation via Python.
+
+[ 我们还可以选择通过 Python 连接相对路径标识符的创建]
 
 This can be enabled by setting the `AR_CACHEDRESOLVER_ENV_EXPOSE_RELATIVE_PATH_IDENTIFIERS` environment variable to `1` or by calling `pxr.Ar.GetUnderlyingResolver().SetExposeRelativePathIdentifierState(True)`.
 
+[ 可以通过将 AR_CACHEDRESOLVER_ENV_EXPOSE_RELATIVE_PATH_IDENTIFIERS 环境变量设置为 1 或调用 pxr.Ar.GetUnderlyingResolver().SetExposeRelativePathIdentifierState(True) 来启用此功能]
+
 We then have access in our `PythonExpose.py` -> `Resolver.CreateRelativePathIdentifier` method. Here we can then return a non file path (anything that doesn't start with "/"/"./"/"../") identifier for our relative path, which then also gets passed to our `PythonExpose.py` -> `ResolverContext.ResolveAndCache` method.
+
+[ 然后我们可以在 PythonExpose.py -> Resolver.CreateRelativePathIdentifier 方法中进行访问. 然后，我们可以在这里返回相对路径的非文件路径（任何不以“/” “./” “../”开头的标识符），然后该标识符也会传递给我们的 PythonExpose.py 方法]
 
 This allows us to also redirect relative paths to our liking for example when implementing special pinning/mapping behaviours.
 
+[ 这允许我们根据自己的喜好重定向相对路径，例如在实现特殊的固定/映射行为时]
+
 For more info check out our [production example](./example.md) section.
+
+[ 有关更多信息，请查看我们的[生产案例](./example.md)部分]
 
 As with our mapping and caching pairs, the result is cached in C++ to enable faster lookups on consecutive calls.
 
+[ 与我们的映射和缓存对一样，结果被缓存在 C++ 中，以便在连续调用时实现更快的查找]
+
 As identifiers are context independent, the cache is stored on the resolver itself. See below on how to modify and inspect the cache.
 
+[ 由于标识符与上下文无关，因此缓存存储在解析器本身上。有关如何修改和检查缓存的信息，请参阅下文]
+
 We also have the option to expose any identifier, regardless of absolute/relative/search path based formatting to our `PythonExpose.py` -> `ResolverContext.ResolveAndCache` method by setting the `AR_CACHEDRESOLVER_ENV_EXPOSE_ABSOLUTE_PATH_IDENTIFIERS` environment variable to `1` or by calling `pxr.Ar.GetUnderlyingResolver().SetExposeAbsolutePathIdentifierState(True)`. As this then runs all paths through the Python exposed section, make sure that paths are batch added/pre-cached as much as possible to keep the resolve efficient.
+
+[ 我们还可以选择通过设置 AR_CACHEDRESOLVER_ENV_EXPOSE_ABSOLUTE_PATH_IDENTIFIERS 环境来公开任何标识符，无论基于绝对/相对/搜索路径的格式如何，我们的 PythonExpose.py -> ResolverContext.ResolveAndCache 方法变量 1 或通过调用 pxr.Ar.GetUnderlyingResolver().SetExposeAbsolutePathIdentifierState(True) 然后，由于这会通过 Python 公开部分运行所有路径，因此请确保尽可能批量添加/预缓存路径，以保持解析效率]
 
 ```python
 from pxr import Ar, Usd
@@ -59,8 +79,10 @@ cached_resolver.RemoveCachedRelativePathIdentifierByValue()  # Remove a cached r
 cached_resolver.ClearCachedRelativePathIdentifierPairs()     # Clear all cached relative path identifier pairs
 ```
 
-## Resolver Context
+## Resolver Context [解析器上下文]
 You can manipulate the resolver context (the object that holds the configuration the resolver uses to resolve paths) via Python in the following ways:
+
+[ 您可以用 Python 通过以下方式操作解析器上下文（保存解析器用于解析路径的配置的对象）]
 
 ```python
 from pxr import Ar, Usd
@@ -78,11 +100,15 @@ for attr in dir(CachedResolver.ResolverContext):
     print(attr)
 ```
 
-### Refreshing the Resolver Context
+### Refreshing the Resolver Context [刷新解析器上下文]
 ```admonish important
 If you make changes to the context at runtime, you'll need to refresh it!
+
+[ 如果您在运行时更改上下文，则需要刷新它！]
 ```
 You can reload it as follows, that way the active stage gets the change notification.
+
+[ 您可以按如下方式重新加载它，这样激活的 stage 就会收到更改通知]
 
 ```python
 from pxr import Ar
@@ -97,9 +123,11 @@ cachedResolver_context.AddMappingPair("identifier.usd", "/absolute/file/path/des
 resolver.RefreshContext(context_collection)
 ```
 
-### Editing the Resolver Context
+### Editing the Resolver Context [编辑解析器上下文]
 We can edit the mapping and cache via the resolver context.
 We also use these methods in the `PythonExpose.py` module.
+
+[ 我们可以通过解析器上下文编辑映射和缓存. 我们还在 PythonExpose.py 模块中使用这些方法]
 
 ```python
 import json
@@ -122,8 +150,12 @@ resolver.RefreshContext(context_collection)
 ```
 When the context is initialized for the first time, it runs the `ResolverContext.Initialize` method as described below. Here you can add any mapping and/or cached pairs as you see fit.
 
-### Mapping/Caching Pairs
+[ 当上下文第一次初始化时，它将运行 ResolverContext.Initialize 方法，如下所述. 您可以在此处添加您认为合适的任何映射和/或缓存对]
+
+### Mapping/Caching Pairs [映射/缓存键值对]
 To inspect/tweak the active mapping/caching pairs, you can use the following:
+
+[ 要检查/调整活动映射/缓存键值对，您可以使用以下命令]
 ```python
 ctx.ClearAndReinitialize()                    # Clear mapping and cache pairs and re-initialize context (with mapping file path)
 ctx.GetMappingFilePath()                      # Get the mapping file path (Defaults to file that the context created via Resolver.CreateDefaultContextForAsset() opened")
@@ -142,6 +174,8 @@ ctx.ClearCachingPairs()                       # Clear all caching pairs
 ```
 
 To generate a mapping .usd file, you can do the following:
+
+[ 要生成映射 .usd 文件，您可以执行以下操作]
 ```python
 from pxr import Ar, Usd, Vt
 from usdAssetResolver import CachedResolver
@@ -154,26 +188,40 @@ stage.SetMetadata('customLayerData', {CachedResolver.Tokens.mappingPairs: Vt.Str
 stage.Save()
 ```
 
-### PythonExpose.py Overview
+### PythonExpose.py Overview [概述]
 As described in our [overview](./overview.md) section, the cache population is handled completely in Python, making it ideal for smaller studios, who don't have the C++ developer resources.
+
+[ 正如我们的[概述](./overview.md)部分所述，缓存填充完全在 Python 中处理，这使其成为没有 C++ 开发人员资源的小型工作室的理想选择]
 
 You can find the basic implementation version that gets shipped with the compiled code here:
 [PythonExpose.py](https://github.com/LucaScheller/VFX-UsdAssetResolver/blob/main/src/CachedResolver/PythonExpose.py).
+
+[ 您可以在此处找到随编译代码一起提供的基本实现版本：PythonExpose.py]
 
 ```admonish important
 You can live edit it after the compilation here: ${REPO_ROOT}/dist/cachedResolver/lib/python/PythonExpose.py (or resolvers.zip/CachedResolver/lib/python folder if you are using the pre-compiled releases).
 Since the code just looks for the `PythonExpose.py` file anywhere in the `sys.path` you can also move or re-create the file anywhere in the path to override the behaviour. The module name can be controlled by the `CMakeLists.txt` file in the repo root by setting `AR_CACHEDRESOLVER_USD_PYTHON_EXPOSE_MODULE_NAME` to a different name.
 
+[ 您可以在此处进行编译后实时编辑：${REPO_ROOT}/dist/cachedResolver/lib/python/PythonExpose.py（如果您使用的是预编译版本，则为 resolvers.zip/CachedResolver/lib/python 文件夹）. 由于代码只是在 sys.path 中的任何位置查找 PythonExpose.py 文件，因此您还可以在路径中的任何位置移动或重新创建该文件以覆盖该行为. 通过将 AR_CACHEDRESOLVER_USD_PYTHON_EXPOSE_MODULE_NAME 设置为不同的名称，可以通过存储库根目录中的 CMakeLists.txt 文件来控制模块名称]
+
 You'll want to adjust the content, so that identifiers get resolved and cached to what your pipeline needs.
+
+[ 您需要调整内容，以便根据流程需要解析并缓存标识符]
 ```
 
 ```admonish tip
-We also recommend checking out our unit tests of the resolver to see how to interact with it. You can find them in the "<Repo Root>/src/CachedResolver/testenv" folder or on [GitHub](https://github.com/LucaScheller/VFX-UsdAssetResolver/blob/main/src/CachedResolver/testenv/testCachedResolver.py).
+We also recommend checking out our unit tests of the resolver to see how to interact with it. You can find them in the `<Repo Root>/src/CachedResolver/testenv` folder or on [GitHub](https://github.com/LucaScheller/VFX-UsdAssetResolver/blob/main/src/CachedResolver/testenv/testCachedResolver.py).
+
+[ 我们还建议检查解析器的单元测试，以了解如何与其交互. 您可以在“\<Repo Root\>/src/CachedResolver/testenv”文件夹或 [GitHub](https://github.com/LucaScheller/VFX-UsdAssetResolver/blob/main/src/CachedResolver/testenv/testCachedResolver.py) 上找到它们]
 ```
 
 Below we show the Python exposed methods, note that we use static methods, as we just call into the module and don't create the actual object. (This module could just as easily been made up of pure functions, we just create the classes here to make it match the C++ API.)
 
+[ 下面我们展示了 Python 公开的方法，请注意，我们使用静态方法，因为我们只是调用模块而不创建实际的对象.（这个模块可以很容易地由纯函数组成，我们只需在此处创建类以使其与 C++ API 匹配）]
+
 To enable a similar logging as the `TF_DEBUG` env var does, you can uncomment the following in the `log_function_args` function.
+
+[ 要启用与 TF_DEBUG 环境变量类似的日志记录，您可以取消注释 log_function_args 函数中的以下内容]
 
 ```python
 ...code...
@@ -184,7 +232,7 @@ def log_function_args(func):
 ...code...
 ```
 
-#### Resolver
+#### Resolver [解析器]
 
 ```python
 class Resolver:
@@ -219,7 +267,7 @@ class Resolver:
         return remappedRelativePathIdentifier
 ```
 
-#### Resolver Context
+#### Resolver Context [解析器上下文]
 
 ```python
 class ResolverContext:
